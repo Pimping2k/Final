@@ -1,13 +1,14 @@
 ﻿using Configs;
 using Core.Dependency;
 using Core.DependencyInterfaces;
+using Cysharp.Threading.Tasks;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 namespace Gameplay.Player
 {
-    public class Movement : MonoBehaviour
+    public class MovementComponent : MonoBehaviour
     {
         [SerializeField] private Transform _playerBody;
         [SerializeField] private Rigidbody _rigidbody;
