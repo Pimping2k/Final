@@ -69,6 +69,7 @@ MonoBehaviour:
   _rigidbody: {fileID: 2680601526268401951}
   _playerCamera: {fileID: 8226384390021229059}
   _config: {fileID: 11400000, guid: e770fc3dc1f2abb42af9fa9d5d319883, type: 2}
+  _staminaComponent: {fileID: 8213068544873891765}
 --- !u!114 &4813356540930553128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -93,6 +94,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd2d72a899ef44128e16c987ca174b08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _rigidbody: {fileID: 2680601526268401951}
+  _config: {fileID: 11400000, guid: 52a109879ad7b3b4b8701912a3edc873, type: 2}
 --- !u!54 &2680601526268401951
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -101,7 +104,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4560711539549915932}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 5
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}

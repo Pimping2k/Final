@@ -1,8 +1,7 @@
 ﻿using System;
-using Configs;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Serialization;
+using Configs;
 
 namespace Gameplay.Player
 {
@@ -18,35 +17,86 @@ namespace Gameplay.Player
         [SerializeField] private StaminaConfig _config;
         
         private float _currentStamina;
-
+        private UniTaskCompletionSource<bool> _reductionCompletionSource;
+        private UniTaskCompletionSource<bool> _regenerationCompletionSource;
+        
+        public float CurrentStamina => _currentStamina;
+        public StaminaConfig Config => _config;
+        
+        public event Action<float> ValueChanged;
+        
         private void Awake()
         {
             _currentStamina = _config.MaxStamina;
+            _reductionCompletionSource = new UniTaskCompletionSource<bool>();
+            _regenerationCompletionSource = new UniTaskCompletionSource<bool>();
         }
 
-        public async void ReduceStamina(StaminaReduceType type)
+        public async UniTask<bool> TryReduceStamina(StaminaReduceType type)
         {
-            switch (type)
+            if (_reductionCompletionSource.Task.Status == UniTaskStatus.Pending)
             {
-                case StaminaReduceType.Sprint:
-                    ChangeStamina(_config.SprintStaminaReduce, false);
+                _reductionCompletionSource.TrySetResult(false);
+            }
+            _reductionCompletionSource = new UniTaskCompletionSource<bool>();
+            _regenerationCompletionSource.TrySetResult(false);
+
+            float reduceValue = GetStaminaReductionValue(type);
+            
+            while (_currentStamina > 0 && !_reductionCompletionSource.Task.Status.IsCompleted())
+            {
+                ChangeStamina(-reduceValue);
+                if (_currentStamina <= 0)
+                {
+                    _reductionCompletionSource.TrySetResult(false);
                     break;
-                case StaminaReduceType.Climbing:
-                    ChangeStamina(_config.ClimbingStaminaReduce, false);
-                    break;
-                case StaminaReduceType.BadWeather:
-                    ChangeStamina(_config.ClimbingStaminaReduce, false);
-                    break;
+                }
+                await UniTask.WaitForSeconds(_config.ReduceTiming);
             }
 
-            await UniTask.Yield();
+            return _currentStamina > 0;
         }
 
-        private void ChangeStamina(float value, bool isIncreasing)
+        public async void RegenerateStamina()
         {
-            _currentStamina = isIncreasing
-                ? Mathf.Clamp(_currentStamina + value, 0, _config.MaxStamina)
-                : Mathf.Clamp(_currentStamina - value, 0, _config.MaxStamina);
+            if (_regenerationCompletionSource.Task.Status == UniTaskStatus.Pending)
+            {
+                _regenerationCompletionSource.TrySetResult(false);
+            }
+            _regenerationCompletionSource = new UniTaskCompletionSource<bool>();
+            _reductionCompletionSource.TrySetResult(false);
+
+            await UniTask.WaitForSeconds(_config.StaminaRegenerationDelay);
+            if (_regenerationCompletionSource.Task.Status.IsCompleted())
+                return;
+
+            while (_currentStamina < _config.MaxStamina && !_regenerationCompletionSource.Task.Status.IsCompleted())
+            {
+                ChangeStamina(_config.StaminaRegenerationValue);
+                if (_currentStamina >= _config.MaxStamina)
+                {
+                    _regenerationCompletionSource.TrySetResult(true);
+                    break;
+                }
+                await UniTask.WaitForSeconds(_config.RegenerationTiming);
+            }
+        }
+        
+        private float GetStaminaReductionValue(StaminaReduceType type)
+        {
+            return type switch
+            {
+                StaminaReduceType.Sprint => _config.SprintStaminaReduce,
+                StaminaReduceType.Climbing => _config.ClimbingStaminaReduce,
+                StaminaReduceType.BadWeather => _config.BadWeatherStaminaReduce,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
+
+        private void ChangeStamina(float value)
+        {
+            _currentStamina = Mathf.Clamp(_currentStamina + value, 0, _config.MaxStamina);
+            ValueChanged?.Invoke(_currentStamina);
         }
     }
 }

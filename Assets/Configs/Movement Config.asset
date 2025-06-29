@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95452b1e4b6b47a5a8e7085287ffa72d, type: 3}
   m_Name: Movement Config
   m_EditorClassIdentifier: 
+  _sprintSpeed: 7
   _movementSpeed: 5
   _rotationSpeed: 5
   _cameraClampValue: 70

@@ -1,7 +1,9 @@
-﻿using Configs;
+﻿using System;
+using Configs;
 using Core.Dependency;
 using Core.DependencyInterfaces;
 using Cysharp.Threading.Tasks;
+using Gameplay.Managers;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,9 +16,11 @@ namespace Gameplay.Player
         [SerializeField] private Rigidbody _rigidbody;
         [SerializeField] private CinemachineCamera _playerCamera;
         [SerializeField] private MovementConfig _config;
+        [SerializeField] private StaminaComponent _staminaComponent;
         
         private IInputService _inputService;
-
+        
+        private bool _isSprinting;
         private Vector2 _movementInput;
         private Vector2 _rotationInput;
         private float _xRotation;
@@ -29,14 +33,18 @@ namespace Gameplay.Player
             _inputService.Player.Move.canceled += OnMoveCanceled;
             _inputService.Player.Look.performed += OnLookPerformed;
             _inputService.Player.Look.canceled += OnLookCanceled;
+            _inputService.Player.Sprint.performed += OnSprintPerformed;
+            _inputService.Player.Sprint.canceled += OnSprintCanceled;
         }
-
+        
         private void OnDestroy()
         {
             _inputService.Player.Move.performed -= OnMovePerformed;
             _inputService.Player.Move.canceled -= OnMoveCanceled;
             _inputService.Player.Look.performed -= OnLookPerformed;
             _inputService.Player.Look.canceled -= OnLookCanceled;
+            _inputService.Player.Sprint.performed -= OnSprintPerformed;
+            _inputService.Player.Sprint.canceled -= OnSprintCanceled;
         }
 
         private void FixedUpdate()
@@ -71,6 +79,20 @@ namespace Gameplay.Player
             _rotationInput = Vector2.zero;
         }
 
+        private async void OnSprintPerformed(InputAction.CallbackContext obj)
+        {
+            if (_rigidbody.linearVelocity.magnitude < 0.1f)
+                return;
+            
+            _isSprinting = await _staminaComponent.TryReduceStamina(StaminaReduceType.Sprint);
+        }
+
+        private void OnSprintCanceled(InputAction.CallbackContext obj)
+        {
+            _isSprinting = false;
+            _staminaComponent.RegenerateStamina();
+        }
+
         #endregion
 
         #region Movement and Rotation calculation
@@ -78,7 +100,11 @@ namespace Gameplay.Player
         private void ApplyMovement()
         {
             Vector3 move = _playerBody.forward * _movementInput.y + _playerBody.right * _movementInput.x;
-            Vector3 velocity = move.normalized * _config.MovementSpeed;
+
+            Vector3 velocity = _isSprinting
+                ? move.normalized * _config.SprintSpeed
+                : move.normalized * _config.MovementSpeed;
+            
             _rigidbody.linearVelocity = new Vector3(velocity.x, _rigidbody.linearVelocity.y, velocity.z);
         }
 
