@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Configs;
 using Core.Dependency;
 using Core.DependencyInterfaces;
@@ -21,6 +22,7 @@ namespace Gameplay.Player
         private IInputService _inputService;
         
         private bool _isSprinting;
+        private bool _isCurrentlySprinting;
         private Vector2 _movementInput;
         private Vector2 _rotationInput;
         private float _xRotation;
@@ -50,6 +52,7 @@ namespace Gameplay.Player
         private void FixedUpdate()
         {
             ApplyMovement();
+            HandleSprinting();
         }
 
         private void LateUpdate()
@@ -81,31 +84,48 @@ namespace Gameplay.Player
 
         private async void OnSprintPerformed(InputAction.CallbackContext obj)
         {
-            if (_rigidbody.linearVelocity.magnitude < 0.1f)
-                return;
-            
-            _isSprinting = await _staminaComponent.TryReduceStamina(StaminaReduceType.Sprint);
+            _isSprinting = true;
         }
 
         private void OnSprintCanceled(InputAction.CallbackContext obj)
         {
             _isSprinting = false;
-            _staminaComponent.RegenerateStamina();
         }
 
         #endregion
 
         #region Movement and Rotation calculation
-
+        
         private void ApplyMovement()
         {
             Vector3 move = _playerBody.forward * _movementInput.y + _playerBody.right * _movementInput.x;
 
-            Vector3 velocity = _isSprinting
+            Vector3 velocity = _isCurrentlySprinting
                 ? move.normalized * _config.SprintSpeed
                 : move.normalized * _config.MovementSpeed;
             
+            
             _rigidbody.linearVelocity = new Vector3(velocity.x, _rigidbody.linearVelocity.y, velocity.z);
+        }
+        
+        private async void HandleSprinting()
+        {
+            var isMoving = _rigidbody.linearVelocity.magnitude > 0.1f;
+            
+            if (_isSprinting && isMoving)
+            {
+                _staminaComponent.CancelReducingStamina();
+                _staminaComponent.CancelRegenerationStamina();
+
+                await _staminaComponent.TryReduceStamina(StaminaReduceType.Sprint);
+                _isCurrentlySprinting = true;
+            }
+            else
+            {
+                _staminaComponent.CancelReducingStamina();
+                _staminaComponent.RegenerateStamina();
+                _isCurrentlySprinting = false;
+            }
         }
 
         private void ApplyCameraRotation()

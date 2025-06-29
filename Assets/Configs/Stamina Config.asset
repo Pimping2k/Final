@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Stamina Config
   m_EditorClassIdentifier: 
   _maxStamina: 100
-  _reduceTiming: 0.15
-  _regenerationTiming: 0.2
-  _sprintStaminaReduce: 1
+  _reduceTiming: 5
+  _regenerationTiming: 6
+  _sprintStaminaReduce: 0.5
   _climbingStaminaReduce: 1.15
   _badWeatherStaminaReduce: 0.5
-  _staminaRegenerationValue: 0.777
-  _staminaRegenerationDelay: 2
+  _staminaRegenerationValue: 0.1
+  _staminaRegenerationDelay: 30

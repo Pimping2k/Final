@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Movement Config
   m_EditorClassIdentifier: 
   _sprintSpeed: 7
-  _movementSpeed: 5
+  _movementSpeed: 4
   _rotationSpeed: 5
   _cameraClampValue: 70

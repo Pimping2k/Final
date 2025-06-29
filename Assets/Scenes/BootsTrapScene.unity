@@ -119,52 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &56602215
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 56602216}
-  - component: {fileID: 56602217}
-  m_Layer: 0
-  m_Name: BootstrapManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &56602216
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56602215}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.1608295, y: 3.7820742, z: -6.973802}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &56602217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 56602215}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5528877ee7e64870b01dc7d918848838, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _mainCamera: {fileID: 740831712}
-  _loadingBar: {fileID: 597844963}
 --- !u!1 &409021472
 GameObject:
   m_ObjectHideFlags: 0
@@ -1253,7 +1207,7 @@ GameObject:
   - component: {fileID: 2113578227}
   - component: {fileID: 2113578226}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Loading Screen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1344,13 +1298,78 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1001 &1417774973617138139
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.1608295
+      objectReference: {fileID: 0}
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 3.7820742
+      objectReference: {fileID: 0}
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.973802
+      objectReference: {fileID: 0}
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5949096451137108360, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6945292099152644648, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: _loadingBar
+      value: 
+      objectReference: {fileID: 597844963}
+    - target: {fileID: 6945292099152644648, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: _mainCamera
+      value: 
+      objectReference: {fileID: 740831712}
+    - target: {fileID: 7916666179438066642, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
+      propertyPath: m_Name
+      value: BootstrapManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a40c764a7890da04c9566424b9894bb4, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 740831711}
   - {fileID: 439363756}
-  - {fileID: 56602216}
+  - {fileID: 1417774973617138139}
   - {fileID: 2113578229}
   - {fileID: 2003859429}
   - {fileID: 1317405352}

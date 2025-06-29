@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Configs;
@@ -17,8 +18,12 @@ namespace Gameplay.Player
         [SerializeField] private StaminaConfig _config;
         
         private float _currentStamina;
+        
         private UniTaskCompletionSource<bool> _reductionCompletionSource;
         private UniTaskCompletionSource<bool> _regenerationCompletionSource;
+        
+        private CancellationTokenSource _reducingCancellationTokenSource;
+        private CancellationTokenSource _regenerationCancellationTokenSource;
         
         public float CurrentStamina => _currentStamina;
         public StaminaConfig Config => _config;
@@ -38,20 +43,30 @@ namespace Gameplay.Player
             {
                 _reductionCompletionSource.TrySetResult(false);
             }
+            
             _reductionCompletionSource = new UniTaskCompletionSource<bool>();
+            _reducingCancellationTokenSource = new CancellationTokenSource();
+            var token = _reducingCancellationTokenSource.Token;
+            
             _regenerationCompletionSource.TrySetResult(false);
 
             float reduceValue = GetStaminaReductionValue(type);
-            
-            while (_currentStamina > 0 && !_reductionCompletionSource.Task.Status.IsCompleted())
+            try
             {
-                ChangeStamina(-reduceValue);
-                if (_currentStamina <= 0)
+                while (_currentStamina > 0 && !_reductionCompletionSource.Task.Status.IsCompleted())
                 {
-                    _reductionCompletionSource.TrySetResult(false);
-                    break;
+                    ChangeStamina(-reduceValue);
+                    if (_currentStamina <= 0)
+                    {
+                        _reductionCompletionSource.TrySetResult(false);
+                        break;
+                    }
+
+                    await UniTask.WaitForSeconds(_config.ReduceTiming, cancellationToken: token);
                 }
-                await UniTask.WaitForSeconds(_config.ReduceTiming);
+            }
+            catch (OperationCanceledException e)
+            {
             }
 
             return _currentStamina > 0;
@@ -63,23 +78,47 @@ namespace Gameplay.Player
             {
                 _regenerationCompletionSource.TrySetResult(false);
             }
+            
             _regenerationCompletionSource = new UniTaskCompletionSource<bool>();
+            _regenerationCancellationTokenSource = new CancellationTokenSource();
+            var token = _regenerationCancellationTokenSource.Token;
             _reductionCompletionSource.TrySetResult(false);
 
-            await UniTask.WaitForSeconds(_config.StaminaRegenerationDelay);
-            if (_regenerationCompletionSource.Task.Status.IsCompleted())
-                return;
-
-            while (_currentStamina < _config.MaxStamina && !_regenerationCompletionSource.Task.Status.IsCompleted())
+            try
             {
-                ChangeStamina(_config.StaminaRegenerationValue);
-                if (_currentStamina >= _config.MaxStamina)
+                await UniTask.WaitForSeconds(_config.StaminaRegenerationDelay, cancellationToken: token);
+            
+                if (_regenerationCompletionSource.Task.Status.IsCompleted())
+                    return;
+
+                while (_currentStamina < _config.MaxStamina && !_regenerationCompletionSource.Task.Status.IsCompleted())
                 {
-                    _regenerationCompletionSource.TrySetResult(true);
-                    break;
+                    ChangeStamina(_config.StaminaRegenerationValue);
+                    if (_currentStamina >= _config.MaxStamina)
+                    {
+                        _regenerationCompletionSource.TrySetResult(true);
+                        break;
+                    }
+                    await UniTask.WaitForSeconds(_config.RegenerationTiming, cancellationToken:token);
                 }
-                await UniTask.WaitForSeconds(_config.RegenerationTiming);
             }
+            catch (OperationCanceledException e)
+            {
+            }
+        }
+
+        public void CancelReducingStamina()
+        {
+            _reducingCancellationTokenSource?.Cancel();
+            _reducingCancellationTokenSource?.Dispose();
+            _reducingCancellationTokenSource = null;
+        }
+
+        public void CancelRegenerationStamina()
+        {
+            _regenerationCancellationTokenSource?.Cancel();
+            _regenerationCancellationTokenSource?.Dispose();
+            _regenerationCancellationTokenSource = null;
         }
         
         private float GetStaminaReductionValue(StaminaReduceType type)
