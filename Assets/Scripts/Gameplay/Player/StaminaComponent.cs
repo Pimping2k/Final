@@ -82,6 +82,7 @@ namespace Gameplay.Player
             _regenerationCompletionSource = new UniTaskCompletionSource<bool>();
             _regenerationCancellationTokenSource = new CancellationTokenSource();
             var token = _regenerationCancellationTokenSource.Token;
+            
             _reductionCompletionSource.TrySetResult(false);
 
             try

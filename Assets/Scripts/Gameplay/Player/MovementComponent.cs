@@ -108,21 +108,17 @@ namespace Gameplay.Player
             _rigidbody.linearVelocity = new Vector3(velocity.x, _rigidbody.linearVelocity.y, velocity.z);
         }
         
-        private async void HandleSprinting()
+        private void HandleSprinting()
         {
             var isMoving = _rigidbody.linearVelocity.magnitude > 0.1f;
             
             if (_isSprinting && isMoving)
             {
-                _staminaComponent.CancelReducingStamina();
-                _staminaComponent.CancelRegenerationStamina();
-
-                await _staminaComponent.TryReduceStamina(StaminaReduceType.Sprint);
+                _staminaComponent.TryReduceStamina(StaminaReduceType.Sprint).Forget();
                 _isCurrentlySprinting = true;
             }
             else
             {
-                _staminaComponent.CancelReducingStamina();
                 _staminaComponent.RegenerateStamina();
                 _isCurrentlySprinting = false;
             }
